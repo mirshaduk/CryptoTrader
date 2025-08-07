@@ -1,0 +1,7 @@
+streamlit
+python-binance
+pandas-ta
+pandas==1.5.3
+matplotlib
+numpy
+colorama
