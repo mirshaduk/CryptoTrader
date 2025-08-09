@@ -163,18 +163,31 @@ def place_order(symbol, side, quantity, max_retries=3):
     return None
 
 def get_multi_prices(symbols):
-    client = Client()
+    # Initialize client with testnet
+    client = Client("", "", testnet=True)
     prices = []
     errors = []
-    for symbol in symbols:
-        try:
-            ticker = client.get_symbol_ticker(symbol=symbol)
-            price = float(ticker['price'])
-            prices.append({'Symbol': symbol, 'Price (USDT)': price})
-        except BinanceAPIException as e:
-            errors.append(f"Could not get price for {symbol}. Error: {e}")
-        except Exception as e:
-            errors.append(f"An error occurred with {symbol}: {e}")
+    
+    try:
+        # Get all ticker prices at once for efficiency
+        all_tickers = client.get_all_tickers()
+        price_dict = {t['symbol']: float(t['price']) for t in all_tickers}
+        
+        for symbol in symbols:
+            try:
+                if symbol in price_dict:
+                    prices.append({'Symbol': symbol, 'Price (USDT)': price_dict[symbol]})
+                else:
+                    errors.append(f"No price data available for {symbol}")
+            except Exception as e:
+                errors.append(f"Error processing {symbol}: {str(e)}")
+    except BinanceAPIException as e:
+        logger.error(f"Binance API error: {str(e)}")
+        errors.append("Unable to fetch prices from Binance")
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        errors.append("An unexpected error occurred")
+    
     return prices, errors
 
 def play_alert_sound():
@@ -183,7 +196,7 @@ def play_alert_sound():
 
 @st.cache_data(ttl=60)
 def get_klines(symbol, interval, start_str=None, limit=None):
-    client = Client()
+    client = Client("", "", testnet=True)
     return client.get_historical_klines(symbol, interval, start_str=start_str, limit=limit)
 
 @st.cache_data(ttl=30)
@@ -276,7 +289,7 @@ def get_live_data(symbol, interval, sma_period, rsi_period, max_retries=3):
     """Get live market data with retry mechanism"""
     for attempt in range(max_retries):
         try:
-            client = Client()
+            client = Client("", "", testnet=True)
             # Get more data than needed to ensure accurate indicator calculations
             limit = max(sma_period, rsi_period, TREND_PERIODS) * 3  
             klines = client.get_klines(symbol=symbol, interval=interval, limit=limit)
@@ -624,7 +637,7 @@ try:
                 )
             else:
                 st.write(f"No trades have been completed yet for {trade_symbol} in this session.")
-        st.write("---")
+Hey, Cortana. ite("---")
         st.subheader(f"Live Market Data for {trade_symbol}")
         col_market_1, col_market_2, col_market_3 = st.columns(3)
         col_market_1.metric("Current Price", f"${latest_row['close']:,.2f}")
@@ -637,4 +650,4 @@ except Exception as e:
     with placeholder.container():
         st.error(f"An error occurred: {e}")
         st.error(f"Will retry in {check_interval_seconds} seconds...")
-# --- NO AUTO-REFRESH: Please use the Refresh Now button or F5 to update manually ---
+Hey, Cortana.# --- NO AUTO-REFRESH: Please use the Refresh Now button or F5 to update manually ---
