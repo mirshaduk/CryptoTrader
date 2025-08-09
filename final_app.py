@@ -1,5 +1,5 @@
 import pandas as pd
-import pandas_ta as ta
+import numpy as np
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
 import streamlit as st
@@ -8,6 +8,17 @@ import itertools
 from datetime import timedelta, datetime
 import os
 import logging
+
+# Technical Indicator Functions
+def calculate_sma(data, period):
+    return data.rolling(window=period).mean()
+
+def calculate_rsi(data, period):
+    delta = data.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+    rs = gain / loss
+    return 100 - (100 / (1 + rs))
 
 # Set up logging
 logging.basicConfig(
@@ -292,15 +303,9 @@ def get_live_data(symbol, interval, sma_period, rsi_period, max_retries=3):
             # Drop any rows with invalid data
             data.dropna(subset=['close'], inplace=True)
             
-            # Calculate technical indicators on the full dataset
-            data.ta.sma(length=sma_period, append=True)
-            data.ta.rsi(length=rsi_period, append=True)
-            
-            # Rename columns for consistency
-            data.rename(columns={
-                f'SMA_{sma_period}': 'sma',
-                f'RSI_{rsi_period}': 'rsi'
-            }, inplace=True)
+            # Calculate technical indicators
+            data['sma'] = calculate_sma(data['close'], sma_period)
+            data['rsi'] = calculate_rsi(data['close'], rsi_period)
             
             # Drop any NaN values created by indicators and verify data
             data.dropna(subset=['sma', 'rsi'], inplace=True)
