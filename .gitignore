@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+crypto_env/
+venv/
+ENV/
+
+# Environment variables
+.env
+
+# Local files
+*.log
+trade_history.csv
+*.backup
+
+# IDE
+.vscode/
+.idea/

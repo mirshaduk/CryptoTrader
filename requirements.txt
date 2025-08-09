@@ -1,0 +1,9 @@
+streamlit==1.48.0
+python-binance==1.0.29
+pandas-ta==0.3.14b0
+pandas==2.3.1
+matplotlib==3.10.5
+numpy==2.3.2
+python-dateutil==2.9.0.post0
+pytz==2025.2
+requests==2.32.4
