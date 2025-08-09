@@ -636,10 +636,9 @@ try:
                     use_container_width=True
                 )
             else:
-                st.write(f"                st.write(f"No trades have been completed yet for {trade_symbol} in this session.")
+                st.write(f"No trades have been completed yet for {trade_symbol} in this session.")
         
         st.write("---")
-        st.subheader(f"Live Market Data for {trade_symbol}")")
         st.subheader(f"Live Market Data for {trade_symbol}")
         col_market_1, col_market_2, col_market_3 = st.columns(3)
         col_market_1.metric("Current Price", f"${latest_row['close']:,.2f}")
@@ -647,8 +646,11 @@ try:
         col_market_3.metric(f"RSI({active_params['rsi_period']})", f"{latest_row['rsi']:.2f}")
         st.line_chart(df['close'].tail(100))
         st.write(f"Last updated: {pd.Timestamp.now(tz='Asia/Kolkata').strftime('%Y-%m-%d %I:%M:%S %p %Z')}")
-        if play_sound: play_alert_sound()
+        if play_sound: 
+            play_alert_sound()
 except Exception as e:
     with placeholder.container():
         st.error(f"An error occurred: {e}")
-        st.error(f"Will retry in {check_interval_seconds} sec# --- NO AUTO-REFRESH: Please use the Refresh Now button or F5 to update manually ---
+        st.error(f"Will retry in {check_interval_seconds} seconds...")
+
+# --- NO AUTO-REFRESH: Please use the Refresh Now button or F5 to update manually ---
